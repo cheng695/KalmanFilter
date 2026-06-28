@@ -3,6 +3,7 @@
  * 初始化所有 p5.js sketch 实例
  * 管理 section 可视状态
  */
+import p5 from 'p5';
 import './style.css';
 import { createSection0Sketch } from './sketches/section0-statistics.js';
 import { createSection1FusionSketch } from './sketches/section1-fusion-formula.js';
@@ -11,22 +12,6 @@ import { createSection2Sketch } from './sketches/section2-prior-post.js';
 import { createSection3Sketch } from './sketches/section3-gain.js';
 import { createSection4Sketch } from './sketches/section4-ellipses.js';
 import { createSection5Sketch } from './sketches/section5-tracker.js';
-
-// 等待 p5.js 加载
-function waitForP5() {
-  return new Promise((resolve) => {
-    if (window.p5) {
-      resolve();
-      return;
-    }
-    const checkInterval = setInterval(() => {
-      if (window.p5) {
-        clearInterval(checkInterval);
-        resolve();
-      }
-    }, 100);
-  });
-}
 
 // p5.js sketch 实例管理
 const p5Instances = {};
@@ -57,7 +42,7 @@ function initSketch(sectionId) {
   if (!container) return;
 
   const sketchFn = info.factory(container);
-  const p5Instance = new window.p5(sketchFn, container);
+  const p5Instance = new p5(sketchFn, container);
   p5Instances[sectionId] = p5Instance;
   initializedSections.add(sectionId);
 }
@@ -77,7 +62,6 @@ function setupSectionObserver() {
         const id = entry.target.id;
         if (entry.isIntersecting) {
           initSketch(id);
-          // 更新导航点
           updateNavDots(id);
         } else {
           pauseSketch(id);
@@ -122,11 +106,7 @@ function setupNavClicks() {
 }
 
 // 主初始化
-async function main() {
-  // 加载 p5.js
-  await loadP5Script();
-  await waitForP5();
-
+function main() {
   // 设置 section 管理
   setupSectionObserver();
   setupNavClicks();
@@ -142,26 +122,5 @@ async function main() {
   console.log('   🎮 滚动页面开始学习，或点击右侧导航点跳转');
 }
 
-function loadP5Script() {
-  return new Promise((resolve) => {
-    if (window.p5) {
-      resolve();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/p5@1.11.0/lib/p5.min.js';
-    script.onload = resolve;
-    script.onerror = () => {
-      console.warn('p5.js CDN 加载失败，尝试备用地址...');
-      script.src = 'https://unpkg.com/p5@1.11.0/lib/p5.min.js';
-      script.onerror = () => {
-        console.error('p5.js 加载失败，请检查网络连接');
-        resolve(); // 不阻塞后续流程
-      };
-    };
-    document.head.appendChild(script);
-  });
-}
-
 // 启动
-main().catch(console.error);
+main();
