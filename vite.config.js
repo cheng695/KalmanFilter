@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/KalmanFilter/', // GitHub Pages 部署路径
+  base: './', // 支持 file:// 或任意路径部署
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
